@@ -5,31 +5,24 @@ type sortable[T any] struct {
 	Value T
 }
 
-type keySort[T any] struct {
-	a []*sortable[T]
+type keySort struct {
+	a []string
 	f SortFunc[string]
 }
 
-func (s *keySort[T]) Len() int {
+func (s *keySort) Len() int {
 	return len(s.a)
 }
 
-func (s *keySort[T]) Less(i, j int) bool {
-	a := s.a[i]
-	b := s.a[j]
-
-	return s.f(a.Key, b.Key)
+func (s *keySort) Less(i, j int) bool {
+	return s.f(s.a[i], s.a[j])
 }
 
-func (s *keySort[T]) Result() map[string]T {
-	m := map[string]T{}
-	for _, el := range s.a {
-		m[el.Key] = el.Value
-	}
-	return m
+func (s *keySort) Result() []string {
+	return s.a
 }
 
-func (s *keySort[T]) Swap(i, j int) {
+func (s *keySort) Swap(i, j int) {
 	a := s.a[i]
 	b := s.a[j]
 	s.a[i] = b
@@ -52,12 +45,12 @@ func (s *valueSort[T]) Less(i, j int) bool {
 	return s.f(a.Value, b.Value)
 }
 
-func (s *valueSort[T]) Result() map[string]T {
-	m := map[string]T{}
+func (s *valueSort[T]) Result() []string {
+	k := []string{}
 	for _, el := range s.a {
-		m[el.Key] = el.Value
+		k = append(k, el.Key)
 	}
-	return m
+	return k
 }
 
 func (s *valueSort[T]) Swap(i, j int) {

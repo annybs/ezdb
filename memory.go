@@ -57,7 +57,7 @@ func (c *MemoryCollection[T]) Has(key string) (bool, error) {
 }
 
 func (c *MemoryCollection[T]) Iter() Iterator[T] {
-	m := newMemoryIterator[T](c.m, nil)
+	m := newMemoryIterator[T](c.m, nil, nil)
 	if !c.open {
 		m.Release()
 	}

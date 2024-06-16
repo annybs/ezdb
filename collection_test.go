@@ -2,6 +2,7 @@ package ezdb
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -108,10 +109,8 @@ func (c *CollectionTest) get() error {
 		if err != nil {
 			c.T.Errorf("(get) failed to get student '%s': %v", key, err)
 			continue
-		} else if actual.Name != expected.Name {
-			c.T.Errorf("(get) student '%s' has wrong name (expected '%s', got '%s')", key, expected.Name, actual.Name)
-		} else if actual.Age != expected.Age {
-			c.T.Errorf("(get) student '%s' has wrong age (expected '%s', got '%s')", key, expected.Name, actual.Name)
+		} else if err := compareStudent(key, expected, actual); err != nil {
+			c.T.Errorf("(get) %v", err)
 		} else {
 			c.T.Logf("(get) correctly got student '%s'", key)
 		}
@@ -173,6 +172,60 @@ func (c *CollectionTest) iterCount() error {
 	return nil
 }
 
+func (c *CollectionTest) iterFirst() error {
+	iter := c.C.Iter().SortKeys(func(a, b string) bool {
+		return a < b
+	})
+	defer iter.Release()
+
+	expectedKey := "annie"
+	iter.First()
+	actualKey := iter.Key()
+	if actualKey != expectedKey {
+		c.T.Errorf("(iterFirst) incorrect student (expected '%s', got '%s')", expectedKey, actualKey)
+		return nil
+	}
+
+	expected := students["annie"]
+	actual, err := iter.Value()
+	if err != nil {
+		c.T.Errorf("(iterFirst) failed to get student '%s': %v", actualKey, err)
+		return err
+	}
+	if err := compareStudent(expectedKey, expected, actual); err != nil {
+		c.T.Errorf("(iterFirst) %v", err)
+	}
+
+	return nil
+}
+
+func (c *CollectionTest) iterLast() error {
+	iter := c.C.Iter().SortKeys(func(a, b string) bool {
+		return a < b
+	})
+	defer iter.Release()
+
+	expectedKey := "clive"
+	iter.Last()
+	actualKey := iter.Key()
+	if actualKey != expectedKey {
+		c.T.Errorf("(iterFirst) incorrect student (expected '%s', got '%s')", expectedKey, actualKey)
+		return nil
+	}
+
+	expected := students["clive"]
+	actual, err := iter.Value()
+	if err != nil {
+		c.T.Errorf("(iterFirst) failed to get student '%s': %v", actualKey, err)
+		return err
+	}
+	if err := compareStudent(expectedKey, expected, actual); err != nil {
+		c.T.Errorf("(iterFirst) %v", err)
+	}
+
+	return nil
+}
+
 func (c *CollectionTest) close() error {
 	if c.F["close"] != nil {
 		if err := c.F["close"](); err != nil {
@@ -197,6 +250,8 @@ func (c *CollectionTest) Run() {
 		c.get,
 		c.delete,
 		c.iterCount,
+		c.iterFirst,
+		c.iterLast,
 		c.close,
 	}
 
@@ -205,4 +260,13 @@ func (c *CollectionTest) Run() {
 			return
 		}
 	}
+}
+
+func compareStudent(expectedKey string, expected, actual *Student) error {
+	if actual.Name != expected.Name {
+		return fmt.Errorf("student '%s' has wrong name (expected '%s', got '%s')", expectedKey, expected.Name, actual.Name)
+	} else if actual.Age != expected.Age {
+		return fmt.Errorf("student '%s' has wrong age (expected '%s', got '%s')", expectedKey, expected.Name, actual.Name)
+	}
+	return nil
 }

@@ -25,6 +25,9 @@ type DocumentMarshaler[T1 any, T2 any] interface {
 type FilterFunc[T any] func(key string, value T) bool
 
 // Iterator provides functionality to explore a collection.
+//
+// Be mindful that the order of documents is not assured by any Collection implementation.
+// Use the Sort or SortKeys function before iterating over documents to ensure deterministic sort.
 type Iterator[T any] interface {
 	First() bool // Move the iterator to the first document. Returns false if there is no first document.
 	Last() bool  // Move the iterator to the last document. Returns false if there is no last document.

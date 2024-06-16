@@ -39,7 +39,7 @@ func (i *LevelDBIterator[T]) Filter(f FilterFunc[T]) Iterator[T] {
 		m[key] = value
 	}
 
-	return newMemoryIterator(m, i)
+	return newMemoryIterator(m, nil, i)
 }
 
 func (i *LevelDBIterator[T]) First() bool {
@@ -109,13 +109,13 @@ func (i *LevelDBIterator[T]) Release() {
 
 func (i *LevelDBIterator[T]) Sort(f SortFunc[T]) Iterator[T] {
 	all, _ := i.GetAll()
-	m := newMemoryIterator(all, i)
+	m := newMemoryIterator(all, nil, i)
 	return m.Sort(f)
 }
 
 func (i *LevelDBIterator[T]) SortKeys(f SortFunc[string]) Iterator[T] {
 	all, _ := i.GetAll()
-	m := newMemoryIterator(all, i)
+	m := newMemoryIterator(all, nil, i)
 	return m.SortKeys(f)
 }
 

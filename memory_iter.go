@@ -21,15 +21,17 @@ func (i *MemoryIterator[T]) Filter(f FilterFunc[T]) Iterator[T] {
 		return i
 	}
 
+	k := []string{}
 	m := map[string]T{}
 	i.reset()
 	for i.Next() {
 		key, value, _ := i.Get()
 		if f(key, value) {
+			k = append(k, key)
 			m[key] = value
 		}
 	}
-	return newMemoryIterator(m, i)
+	return newMemoryIterator(m, k, i)
 }
 
 func (i *MemoryIterator[T]) First() bool {
@@ -135,9 +137,9 @@ func (i *MemoryIterator[T]) Sort(f SortFunc[T]) Iterator[T] {
 		f: f,
 	}
 	sort.Stable(s)
-	m := s.Result()
+	k := s.Result()
 
-	return newMemoryIterator(m, i)
+	return newMemoryIterator(i.m, k, i)
 }
 
 func (i *MemoryIterator[T]) SortKeys(f SortFunc[string]) Iterator[T] {
@@ -145,14 +147,14 @@ func (i *MemoryIterator[T]) SortKeys(f SortFunc[string]) Iterator[T] {
 		return i
 	}
 
-	s := &keySort[T]{
-		a: makeSortable(i.m),
+	s := &keySort{
+		a: i.k,
 		f: f,
 	}
 	sort.Stable(s)
-	m := s.Result()
+	k := s.Result()
 
-	return newMemoryIterator(m, i)
+	return newMemoryIterator(i.m, k, i)
 }
 
 func (i *MemoryIterator[T]) Value() (T, error) {
@@ -164,7 +166,7 @@ func (i *MemoryIterator[T]) reset() {
 	i.pos = -1
 }
 
-func newMemoryIterator[T any](m map[string]T, prev Iterator[T]) *MemoryIterator[T] {
+func newMemoryIterator[T any](m map[string]T, k []string, prev Iterator[T]) *MemoryIterator[T] {
 	i := &MemoryIterator[T]{
 		k: []string{},
 		m: m,
@@ -173,8 +175,12 @@ func newMemoryIterator[T any](m map[string]T, prev Iterator[T]) *MemoryIterator[
 		prev: prev,
 	}
 
-	for k := range i.m {
-		i.k = append(i.k, k)
+	if len(k) > 0 {
+		i.k = k
+	} else {
+		for k := range i.m {
+			i.k = append(i.k, k)
+		}
 	}
 
 	return i
