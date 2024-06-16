@@ -9,15 +9,28 @@ type LevelDBIterator[T any] struct {
 
 func (i *LevelDBIterator[T]) Count() int {
 	n := 0
+
+	if i.First() {
+		n++
+	}
+
 	for i.Next() {
 		n++
 	}
+
 	return n
 }
 
 func (i *LevelDBIterator[T]) Filter(f FilterFunc[T]) Iterator[T] {
-	i.First()
 	m := map[string]T{}
+
+	if i.First() {
+		key, value, err := i.Get()
+		if err == nil {
+			m[key] = value
+		}
+	}
+
 	for i.Next() {
 		key, value, err := i.Get()
 		if err != nil {
@@ -25,6 +38,7 @@ func (i *LevelDBIterator[T]) Filter(f FilterFunc[T]) Iterator[T] {
 		}
 		m[key] = value
 	}
+
 	return newMemoryIterator(m, i)
 }
 
@@ -39,12 +53,15 @@ func (i *LevelDBIterator[T]) Get() (string, T, error) {
 
 func (i *LevelDBIterator[T]) GetAll() (map[string]T, error) {
 	values := map[string]T{}
-	i.First()
-	key, value, err := i.Get()
-	if err != nil {
-		return values, err
+
+	if i.First() {
+		key, value, err := i.Get()
+		if err != nil {
+			return values, err
+		}
+		values[key] = value
 	}
-	values[key] = value
+
 	for i.Next() {
 		key, value, err := i.Get()
 		if err != nil {
@@ -52,16 +69,21 @@ func (i *LevelDBIterator[T]) GetAll() (map[string]T, error) {
 		}
 		values[key] = value
 	}
+
 	return values, nil
 }
 
 func (i *LevelDBIterator[T]) GetAllKeys() []string {
 	keys := []string{}
-	i.First()
-	keys = append(keys, i.Key())
+
+	if i.First() {
+		keys = append(keys, i.Key())
+	}
+
 	for i.Next() {
 		keys = append(keys, i.Key())
 	}
+
 	return keys
 }
 
