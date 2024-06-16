@@ -96,11 +96,11 @@ func (i *MemoryIterator[T]) Next() bool {
 		return false
 	}
 
-	end := i.pos+1 >= i.Count()
-	if !end {
+	hasNext := i.pos+1 <= i.Count()
+	if hasNext {
 		i.pos++
 	}
-	return end
+	return hasNext
 }
 
 func (i *MemoryIterator[T]) Prev() bool {
