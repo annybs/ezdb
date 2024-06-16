@@ -69,10 +69,15 @@ func (c *MemoryCollection[T]) Open() error {
 		if err := c.c.Open(); err != nil {
 			return err
 		}
-		all, err := c.c.Iter().GetAll()
+
+		iter := c.c.Iter()
+		defer iter.Release()
+
+		all, err := iter.GetAll()
 		if err != nil {
 			return err
 		}
+
 		c.m = all
 	} else {
 		c.m = map[string]T{}
