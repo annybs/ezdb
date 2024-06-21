@@ -4,7 +4,7 @@ import "testing"
 
 func TestLevelDB(t *testing.T) {
 	path := ".leveldb/leveldb_test"
-	c := LevelDB[*Student](path, studentMarshaler)
+	c := LevelDB[*Student](path, studentMarshaler, nil)
 
 	fixture := &CollectionTest{
 		C: c,
