@@ -4,7 +4,7 @@ This package provides simple interfaces for working with basic key-value storage
 
 **EZ DB is not a database unto itself.** If you want more control or features, just use the appropriate database software and connector for your needs.
 
-## System Requirements
+## System requirements
 
 - [Go v1.21](https://go.dev/dl/)
 
