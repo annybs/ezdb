@@ -4,6 +4,10 @@ This package provides simple interfaces for working with basic key-value storage
 
 **EZ DB is not a database unto itself.** If you want more control or features, just use the appropriate database software and connector for your needs.
 
+## System Requirements
+
+- [Go v1.21](https://go.dev/dl/)
+
 ## Basic usage
 
 The primary interface in EZ DB is `Collection[T]` which reflects a single key-value store. This is analogous to tables in RDBMS, collections in NoSQL databases etc.
@@ -60,3 +64,7 @@ The following databases are included in EZ DB:
 
 - `LevelDB[T]` is [fast key-value storage](https://github.com/google/leveldb) on disk
 - `Memory[T]` is essentially a wrapper for `map[string]T`. It can be provided another Collection to use as a persistence backend
+
+## License
+
+See [LICENSE.md](./LICENSE.md)
